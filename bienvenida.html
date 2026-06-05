@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bienvenido a la Liga - Ciencias Naturales</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Open+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="CSS/estilo-bienvenida.css">
+</head>
+<body>
+
+    <div class="welcome-card">
+        
+        <span class="badge-ready">¡LISTO PARA LA ACCIÓN!</span>
+        
+        <h1 class="welcome-title">BIENVENIDO, <span id="player-name">HÉROE</span>!</h1>
+        
+        <div class="avatar-display-container">
+            <img id="chosen-avatar" src="img/avatar1.jpeg" alt="Tu Avatar" class="welcome-avatar">
+        </div>
+
+        <div class="stars-group">
+            <i class="fa-solid fa-star comic-star"></i>
+            <i class="fa-solid fa-star comic-star star-center"></i>
+            <i class="fa-solid fa-star comic-star"></i>
+        </div>
+
+        <p class="welcome-text">¡Elige tu próximo paso en la liga de la ciencia!</p>
+
+        <button class="btn-comic btn-blue-action" onclick="irAJuegos()">
+            ¡COMENZAR JUEGO! 🎮
+        </button>
+        
+        <a href="basico4.html" class="btn-comic btn-yellow-action">4° Básico</a>
+        
+    </div>
+
+    <script src="js/bienvenida.js"></script>
+</body>
+</html>

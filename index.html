@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ciencias Naturales - Cadenas Alimentarias</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Open+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="CSS/estilo_index.css">
+</head>
+<body>
+
+    <div class="comic-card">
+        
+        <!-- Sección Izquierda: Título y Contenidos -->
+        <div class="left-section">
+            <span class="badge-grade">4TO BÁSICO</span>
+            <h1 class="main-title">CIENCIAS<br>NATURALES</h1>
+            <p class="subtitle">¡Únete a la liga de la ciencia y descubre los ecosistemas de Chile!</p>
+            
+            <button class="btn-comic btn-yellow" onclick="toggleContenidos()">
+                <i class="fa-solid fa-book-open"></i> VER CONTENIDOS
+            </button>
+
+            <div id="panel-contenidos" class="content-panel hidden">
+                <h3>📜 ¿Qué aprenderás hoy?</h3>
+                <ul>
+                    <li>🌲 <strong>Productores:</strong> Plantas y Alerces chilenos (Fabrican su propio alimento).</li>
+                    <li>🦌 <strong>Consumidores 1°:</strong> Herbívoros como el Huemul (Comen plantas).</li>
+                    <li>🐆 <strong>Consumidores 2°:</strong> Carnívoros como el Puma (Comen otros animales).</li>
+                    <li>🍄 <strong>Descomponedores:</strong> Hongos del bosque nativo (Reciclan la materia).</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Sección Derecha: Iniciar Sesión y Avatares -->
+        <div class="right-section">
+            <h2 class="section-title">INICIAR SESIÓN</h2>
+            
+            <div class="input-container">
+                <input type="text" id="username" placeholder="Escribe tu nombre aquí..." autocomplete="off">
+            </div>
+
+            <p class="avatar-label">SELECCIONA TU AVATAR HÉROE:</p>
+            
+            <!-- Grupo de avatares con las imágenes fijadas por CSS -->
+            <div class="avatar-group">
+                <img src="img/avatar1.jpeg" alt="Avatar 1" class="avatar-img" onclick="seleccionarAvatar(this, 'avatar1')">
+                <img src="img/avatar2.jpeg" alt="Avatar 2" class="avatar-img" onclick="seleccionarAvatar(this, 'avatar2')">
+                <img src="img/avatar3.jpeg" alt="Avatar 3" class="avatar-img" onclick="seleccionarAvatar(this, 'avatar3')">
+                <img src="img/avatar4.jpeg" alt="Avatar 4" class="avatar-img" onclick="seleccionarAvatar(this, 'avatar4')">
+            </div>
+
+            <button class="btn-comic btn-blue" onclick="iniciarAventura()">¡ENTRAR A LA LIGA! 🚀</button>
+        </div>
+
+    </div>
+
+    <script src="js/index.js"></script>
+</body>
+</html>
