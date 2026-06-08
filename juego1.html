@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juego 1: El Laberinto Trófico</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Open+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: radial-gradient(circle, #1e3a8a 0%, #0f172a 100%) !important;
+            background-color: #0f172a !important;
+            font-family: 'Open Sans', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .game-box {
+            background: #ffffff !important;
+            border: 5px solid #000000 !important;
+            border-radius: 24px !important;
+            box-shadow: 12px 12px 0px #000000 !important;
+            max-width: 700px;
+            width: 100%;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            background: #f8fafc;
+            border: 3px solid #000000;
+            padding: 10px 20px;
+            border-radius: 12px;
+        }
+
+        .hud-text {
+            font-family: 'Bangers', cursive;
+            font-size: 1.5rem;
+            letter-spacing: 1px;
+            color: #1e3a8a;
+        }
+
+        .score-badge {
+            color: #e11d48;
+        }
+
+        /* Contenedor del Personaje y Controles de Voz */
+        .character-zone {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .avatar-frame {
+            width: 90px;
+            height: 90px;
+            border: 4px solid #000000;
+            border-radius: 50%;
+            box-shadow: 4px 4px 0px #000000;
+            object-fit: cover;
+            background: #e2e8f0;
+        }
+
+        /* Botón para re-escuchar la pregunta */
+        .btn-repeat-voice {
+            background: #fde047 !important;
+            color: #000000 !important;
+            border: 3px solid #000000;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 3px 3px 0px #000000;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.1s;
+        }
+
+        .btn-repeat-voice:active {
+            transform: translate(2px, 2px);
+            box-shadow: 1px 1px 0px #000000;
+        }
+
+        /* Globo de diálogo estilo cómic */
+        .comic-bubble {
+            background: #ffffff;
+            border: 4px solid #000000;
+            border-radius: 16px;
+            padding: 20px;
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: #1e293b;
+            position: relative;
+            box-shadow: 6px 6px 0px #1e3a8a;
+            width: 100%;
+            margin-bottom: 25px;
+            text-align: left;
+            line-height: 1.6;
+        }
+
+        /* EFECTO SUBRAYADO PALABRA POR PALABRA */
+        .word-span {
+            position: relative;
+            display: inline-block;
+            padding: 0 2px;
+            transition: background-color 0.1s ease;
+        }
+
+        .word-highlight {
+            background-color: #fde047 !important; /* Amarillo marcador */
+            color: #000000 !important;
+            border-radius: 4px;
+        }
+
+        /* Opciones de respuesta */
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 100%;
+        }
+
+        .btn-option {
+            font-family: 'Open Sans', sans-serif;
+            font-weight: bold;
+            font-size: 1.15rem;
+            text-align: left;
+            padding: 15px 20px;
+            background: #ffffff;
+            color: #000000;
+            border: 4px solid #000000;
+            border-radius: 12px;
+            cursor: pointer;
+            box-shadow: 5px 5px 0px #000000;
+            transition: transform 0.1s, box-shadow 0.1s;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            width: 100%;
+        }
+
+        .btn-option:hover { background: #f8fafc; }
+
+        .btn-option:active {
+            transform: translate(3px, 3px);
+            box-shadow: 2px 2px 0px #000000;
+        }
+
+        .option-letter {
+            font-family: 'Bangers', cursive;
+            font-size: 1.6rem;
+            background: #1e3a8a;
+            color: #ffffff;
+            padding: 2px 10px;
+            border-radius: 6px;
+            border: 2px solid #000000;
+        }
+
+        .screen-hidden { display: none !important; }
+
+        .victory-title {
+            font-family: 'Bangers', cursive;
+            font-size: 3.8rem;
+            color: #16a34a;
+            text-shadow: 3px 3px 0px #000000;
+            margin-bottom: 20px;
+        }
+
+        .defeat-title {
+            font-family: 'Bangers', cursive;
+            font-size: 3.8rem;
+            color: #dc2626;
+            text-shadow: 3px 3px 0px #000000;
+            margin-bottom: 20px;
+        }
+
+        .final-badge {
+            font-family: 'Bangers', cursive;
+            font-size: 2rem;
+            background: #fde047;
+            padding: 10px 25px;
+            border: 4px solid #000000;
+            display: inline-block;
+            transform: rotate(-2deg);
+            box-shadow: 5px 5px 0px #000000;
+            margin-bottom: 35px;
+        }
+
+        /* Botones de menú final */
+        .btn-nav {
+            font-family: 'Bangers', cursive;
+            font-size: 1.6rem;
+            padding: 12px 30px;
+            border: 4px solid #000000;
+            border-radius: 12px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            box-shadow: 5px 5px 0px #000000;
+            text-shadow: 2px 2px 0px #000000;
+            letter-spacing: 1px;
+        }
+
+        .btn-blue { background: #2563eb; color: #ffffff; }
+        .btn-yellow { background: #fde047; color: #000000; text-shadow: none; }
+        .btn-red { background: #e11d48; color: #ffffff; }
+
+        .btn-nav:active {
+            transform: translate(3px, 3px);
+            box-shadow: 2px 2px 0px #000000;
+        }
+
+        .correct-blink { background-color: #bbf7d0 !important; border-color: #16a34a !important; }
+        .wrong-blink { background-color: #fecdd3 !important; border-color: #dc2626 !important; }
+    </style>
+</head>
+<body>
+
+    <div class="game-box">
+        
+        <div id="screen-quiz">
+            <header class="game-header">
+                <div class="hud-text">DESAFÍO: <span id="current-question-node">1</span>/5</div>
+                <div class="hud-text">PUNTOS: <span id="score-node" class="score-badge">0</span></div>
+            </header>
+
+            <div class="character-zone">
+                <img id="player-hero-avatar" src="img/avatar1.jpeg" alt="Héroe" class="avatar-frame">
+                <button class="btn-repeat-voice" onclick="volverAEscuchar()" title="Escuchar de nuevo">
+                    <i class="fa-solid fa-volume-high"></i>
+                </button>
+            </div>
+                
+            <div class="comic-bubble" id="question-bubble-box">
+                </div>
+
+            <div class="options-list">
+                <button class="btn-option" onclick="evaluarRespuesta(0)">
+                    <span class="option-letter">A</span> <span id="opt0">Opción A</span>
+                </button>
+                <button class="btn-option" onclick="evaluarRespuesta(1)">
+                    <span class="option-letter">B</span> <span id="opt1">Opción B</span>
+                </button>
+                <button class="btn-option" onclick="evaluarRespuesta(2)">
+                    <span class="option-letter">C</span> <span id="opt2">Opción C</span>
+                </button>
+            </div>
+        </div>
+
+        <div id="screen-results" class="screen-hidden">
+            <h1 id="results-title" class="victory-title">¡MISIÓN CUMPLIDA!</h1>
+            <p class="final-badge" id="results-score-text">CONSEGUISTE 0 PUNTOS</p>
+            
+            <p style="font-weight: bold; margin-bottom: 20px; color: #475569;">¿Cuál es tu próximo paso, héroe?</p>
+            
+            <div style="display: flex; flex-direction: column; gap: 15px; align-items: center;">
+                <a href="juego2.html" class="btn-nav btn-blue" style="width: 80%;">➡️ SIGUIENTE NIVEL (JUEGO 2)</a>
+                <button class="btn-nav btn-yellow" onclick="reiniciarJuego()" style="width: 80%;">🔄 REPETIR ESTA TRIVIA</button>
+                <a href="bienvenida.html" class="btn-nav btn-red" style="width: 80%;">🏠 VOLVER AL INICIO</a>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const preguntasCuestionario = [
+            {
+                pregunta: "¡Rayos! El tierno Huemul necesita recargar su energía en el bosque sureño. ¿Qué rol cumple en la naturaleza?",
+                opciones: ["Consumidor Primario (Herbívoro)", "Productor", "Descomponedor"],
+                correcta: 0
+            },
+            {
+                pregunta: "El majestuoso Alerce chileno absorbe luz solar y fabrica su propio alimento. ¿Qué tipo de organismo es?",
+                opciones: ["Consumidor Secundario", "Productor", "Descomponedor"],
+                correcta: 1
+            },
+            {
+                pregunta: "¡Alerta en la cordillera! El Puma acecha a sus presas para alimentarse de carne. Él es un...",
+                opciones: ["Productor", "Consumidor Primario", "Consumidor Secundario (Carnívoro)"],
+                correcta: 2
+            },
+            {
+                pregunta: "Los hongos y bacterias del suelo desarman los restos de animales muertos y limpian el bosque. ¿Quiénes son?",
+                opciones: ["Descomponedores", "Productores", "Consumidores"],
+                correcta: 0
+            },
+            {
+                pregunta: "Si desaparecieran todos los Productores de Chile, ¿qué pasaría con la energía de la liga?",
+                opciones: ["Los animales tendrían más comida.", "La cadena se rompe y los seres vivos se quedan sin energía.", "No pasa nada, todo sigue igual."],
+                correcta: 1
+            }
+        ];
+
+        let indicePreguntaActual = 0;
+        let puntajeAcumulado = 0;
+        let bloqueado = false;
+        let spansPalabrasPregunta = [];
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const avatarGuardado = localStorage.getItem("avatarEstudiante") || "avatar1";
+            const imgHero = document.getElementById("player-hero-avatar");
+            
+            if (avatarGuardado === "avatar1") imgHero.src = "img/avatar1.jpeg";
+            else if (avatarGuardado === "avatar2") imgHero.src = "img/avatar2.jpeg";
+            else if (avatarGuardado === "avatar3") imgHero.src = "img/avatar3.jpeg";
+            else if (avatarGuardado === "avatar4") imgHero.src = "img/avatar4.jpeg";
+
+            cargarMisionPregunta();
+        });
+
+        function cargarMisionPregunta() {
+            bloqueado = false;
+            
+            const botones = document.querySelectorAll(".btn-option");
+            botones.forEach(btn => btn.classList.remove("correct-blink", "wrong-blink"));
+
+            document.getElementById("current-question-node").textContent = indicePreguntaActual + 1;
+            document.getElementById("score-node").textContent = puntajeAcumulado;
+
+            const datosActuales = preguntasCuestionario[indicePreguntaActual];
+            
+            // Separamos la pregunta en spans de palabras para poder subrayar
+            const cajaPregunta = document.getElementById("question-bubble-box");
+            const palabras = datosActuales.pregunta.split(' ');
+            
+            cajaPregunta.innerHTML = palabras.map(palabra => `<span class="word-span">${palabra}</span>`).join(' ');
+            spansPalabrasPregunta = cajaPregunta.querySelectorAll('.word-span');
+
+            document.getElementById("opt0").textContent = datosActuales.opciones[0];
+            document.getElementById("opt1").textContent = datosActuales.opciones[1];
+            document.getElementById("opt2").textContent = datosActuales.opciones[2];
+
+            reproducirPreguntaConEfecto(datosActuales.pregunta);
+        }
+
+        function reproducirPreguntaConEfecto(textoLectura) {
+            if (!('speechSynthesis' in window)) return;
+
+            window.speechSynthesis.cancel();
+            
+            // Limpiamos cualquier resaltado viejo
+            spansPalabrasPregunta.forEach(span => span.classList.remove('word-highlight'));
+
+            const narracion = new SpeechSynthesisUtterance(textoLectura);
+            narracion.lang = 'es-CL';
+            narracion.rate = 0.85; // Un poco más pausado para coordinar el pintado
+
+            let indicePalabra = 0;
+
+            // Rastreador de palabras habladas
+            narracion.onboundary = (event) => {
+                if (event.name === 'word') {
+                    spansPalabrasPregunta.forEach(span => span.classList.remove('word-highlight'));
+                    
+                    if (indicePalabra < spansPalabrasPregunta.length) {
+                        spansPalabrasPregunta[indicePalabra].classList.add('word-highlight');
+                        indicePalabra++;
+                    }
+                }
+            };
+
+            // Al terminar quita el último amarillo
+            narracion.onend = () => {
+                spansPalabrasPregunta.forEach(span => span.classList.remove('word-highlight'));
+            };
+
+            window.speechSynthesis.speak(narracion);
+        }
+
+        function volverAEscuchar() {
+            const datosActuales = preguntasCuestionario[indicePreguntaActual];
+            reproducirPreguntaConEfecto(datosActuales.pregunta);
+        }
+
+        function evaluarRespuesta(indiceSeleccionado) {
+            if (bloqueado) return;
+            bloqueado = true;
+
+            window.speechSynthesis.cancel(); // Silencia la pregunta si seguía hablando
+
+            const datosActuales = preguntasCuestionario[indicePreguntaActual];
+            const botones = document.querySelectorAll(".btn-option");
+
+            if (indiceSeleccionado === datosActuales.correcta) {
+                botones[indiceSeleccionado].classList.add("correct-blink");
+                puntajeAcumulado += 100;
+                document.getElementById("score-node").textContent = puntajeAcumulado;
+                reproducirRespuestaCorta("¡Excelente trabajo!");
+            } else {
+                botones[indiceSeleccionado].classList.add("wrong-blink");
+                botones[datosActuales.correcta].classList.add("correct-blink");
+                reproducirRespuestaCorta("¡Oh, estuviste cerca!");
+            }
+
+            setTimeout(() => {
+                indicePreguntaActual++;
+                if (indicePreguntaActual < preguntasCuestionario.length) {
+                    cargarMisionPregunta();
+                } else {
+                    mostrarPantallaResultados();
+                }
+            }, 2300);
+        }
+
+        function reproducirRespuestaCorta(mensaje) {
+            if ('speechSynthesis' in window) {
+                const discurso = new SpeechSynthesisUtterance(mensaje);
+                discurso.lang = 'es-CL';
+                window.speechSynthesis.speak(discurso);
+            }
+        }
+
+        function mostrarPantallaResultados() {
+            document.getElementById("screen-quiz").classList.add("screen-hidden");
+            const panelResultados = document.getElementById("screen-results");
+            panelResultados.classList.remove("screen-hidden");
+
+            const tituloFinal = document.getElementById("results-title");
+            document.getElementById("results-score-text").textContent = `CONSEGUISTE ${puntajeAcumulado} PUNTOS`;
+
+            if (puntajeAcumulado >= 300) {
+                tituloFinal.textContent = "¡MISIÓN CUMPLIDA!";
+                tituloFinal.className = "victory-title";
+                reproducirRespuestaCorta(`¡Fabuloso! Ganaste el juego con ${puntajeAcumulado} puntos. Elige si quieres pasar al siguiente nivel.`);
+            } else {
+                tituloFinal.textContent = "¡VUELVE A INTENTARLO!";
+                tituloFinal.className = "defeat-title";
+                reproducirRespuestaCorta(`Buen intento. Conseguiste ${puntajeAcumulado} puntos. ¡Puedes repetirlo para mejorar tu marcador!`);
+            }
+        }
+
+        function reiniciarJuego() {
+            indicePreguntaActual = 0;
+            puntajeAcumulado = 0;
+            document.getElementById("screen-results").classList.add("screen-hidden");
+            document.getElementById("screen-quiz").classList.remove("screen-hidden");
+            cargarMisionPregunta();
+        }
+    </script>
+</body>
+</html>
