@@ -9,6 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Open+Sans:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="js/efectos.js"></script>
 
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -87,6 +88,7 @@
             width: 90%; text-align: center;
         }
         .btn-pink { background: #e11d48; color: #ffffff; text-shadow: 2px 2px 0px #000000; }
+        .btn-yellow { background: #fde047; color: #000000; text-shadow: none; }
     </style>
 </head>
 <body>
@@ -126,7 +128,10 @@
             
             <p class="total-points-text" id="congrats-text">¡Increíble! Has salvado todos los ecosistemas de Chile.</p>
             
-            <a href="bienvenida.html" class="btn-nav btn-pink">🏠 VOLVER AL INICIO</a>
+            <div style="display: flex; flex-direction: column; gap: 12px; align-items: center; width: 100%;">
+                <a href="juegos.html" class="btn-nav btn-yellow">🎮 VER TODOS LOS JUEGOS</a>
+                <a href="bienvenida.html" class="btn-nav btn-pink">🏠 VOLVER AL INICIO</a>
+            </div>
         </div>
     </div>
 
@@ -192,8 +197,10 @@
 
             if (elegido === misiones[indice].correcta) {
                 puntosJ5 += 200;
+                reproducirAcierto(); // Sonido nativo de acierto
                 reproducirSimple("¡Correcto! Eres un genio.");
             } else {
+                reproducirError(); // Sonido nativo de error
                 reproducirSimple("¡Casi! Sigue intentando.");
             }
 
@@ -224,24 +231,15 @@
             const p4 = parseInt(localStorage.getItem("puntaje_juego4")) || 0;
             const total = p1 + p2 + p3 + p4 + puntosJ5;
 
+            // Guardar puntaje total
+            localStorage.setItem("puntajeTotal", total);
+
             document.getElementById("screen-game").classList.add("screen-hidden");
             document.getElementById("screen-victory").classList.remove("screen-hidden");
             document.getElementById("total-score-badge").textContent = `${total} PUNTOS TOTALES`;
 
-            // EFECTO DE SERPENTINAS (CONFETTI)
-            var duration = 5 * 1000;
-            var animationEnd = Date.now() + duration;
-            var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
-
-            function randomInRange(min, max) { return Math.random() * (max - min) + min; }
-
-            var interval = setInterval(function() {
-                var timeLeft = animationEnd - Date.now();
-                if (timeLeft <= 0) return clearInterval(interval);
-                var particleCount = 50 * (timeLeft / duration);
-                confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } }));
-                confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
-            }, 250);
+            // EFECTO DE SERPENTINAS (CONFETTI) Y SONIDO NATIVO
+            lanzarSerpentinas();
 
             reproducirSimple(`¡Felicitaciones! Has completado todos los niveles. Tu puntaje total es de ${total} puntos. ¡Eres un verdadero guardián de la naturaleza!`);
         }

@@ -8,6 +8,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Open+Sans:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="js/efectos.js"></script>
 
     <style>
         /* =======================================================
@@ -250,7 +251,7 @@
             <div style="display: flex; flex-direction: column; gap: 12px; align-items: center;">
                 <a href="juego5.html" class="btn-nav btn-blue">➡️ SIGUIENTE NIVEL (JUEGO 5)</a>
                 <button class="btn-nav btn-yellow" onclick="reiniciarJuego()">🔄 REPETIR ESTA TRIVIA</button>
-                <a href="bienvenida.html" class="btn-nav btn-pink">🏠 VOLVER AL INICIO</a>
+                <a href="juegos.html" class="btn-nav btn-pink">🏠 VOLVER AL PANEL</a>
             </div>
         </div>
     </div>
@@ -372,12 +373,14 @@
                 botonPresionado.style.borderColor = "#16a34a";
                 puntaje += 100;
                 document.getElementById("score-node").textContent = puntaje;
+                reproducirAcierto(); // Sonido nativo de acierto
                 reproducirAudioCorto("¡Bien Hecho! Atrapaste al intruso.");
             } else {
                 botonPresionado.style.backgroundColor = "#fecdd3"; 
                 botonPresionado.style.borderColor = "#dc2626";
                 puntaje = Math.max(0, puntaje - 20);
                 document.getElementById("score-node").textContent = puntaje;
+                reproducirError(); // Sonido nativo de error
                 reproducirAudioCorto("¡Ese organismo sí pertenece al lugar!");
             }
 
@@ -401,9 +404,14 @@
         }
 
         function finalizarJuego() {
+            // Guardar puntaje en localStorage
+            localStorage.setItem("puntaje_juego4", puntaje);
+
             document.getElementById("screen-game").classList.add("screen-hidden");
             document.getElementById("screen-results").classList.remove("screen-hidden");
             document.getElementById("results-score-text").textContent = `CONSEGUISTE ${puntaje} PUNTOS`;
+            
+            lanzarSerpentinas(); // Serpentinas visuales y sonido de confetti
             reproducirAudioCorto(`¡Misión cumplida! Completaste el rastreo de intrusos y conseguiste ${puntaje} puntos.`);
         }
 

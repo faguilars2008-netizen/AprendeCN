@@ -8,6 +8,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Open+Sans:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="js/efectos.js"></script>
 
     <style>
         * {
@@ -277,7 +278,7 @@
             <div style="display: flex; flex-direction: column; gap: 15px; align-items: center;">
                 <a href="juego2.html" class="btn-nav btn-blue" style="width: 80%;">➡️ SIGUIENTE NIVEL (JUEGO 2)</a>
                 <button class="btn-nav btn-yellow" onclick="reiniciarJuego()" style="width: 80%;">🔄 REPETIR ESTA TRIVIA</button>
-                <a href="bienvenida.html" class="btn-nav btn-red" style="width: 80%;">🏠 VOLVER AL INICIO</a>
+                <a href="juegos.html" class="btn-nav btn-red" style="width: 80%;">🏠 VOLVER AL PANEL</a>
             </div>
         </div>
 
@@ -406,10 +407,12 @@
                 botones[indiceSeleccionado].classList.add("correct-blink");
                 puntajeAcumulado += 100;
                 document.getElementById("score-node").textContent = puntajeAcumulado;
+                reproducirAcierto(); // Sonido nativo de acierto
                 reproducirRespuestaCorta("¡Excelente trabajo!");
             } else {
                 botones[indiceSeleccionado].classList.add("wrong-blink");
                 botones[datosActuales.correcta].classList.add("correct-blink");
+                reproducirError(); // Sonido nativo de error
                 reproducirRespuestaCorta("¡Oh, estuviste cerca!");
             }
 
@@ -432,6 +435,9 @@
         }
 
         function mostrarPantallaResultados() {
+            // Guardar puntaje en localStorage para el panel
+            localStorage.setItem("puntaje_juego1", puntajeAcumulado);
+
             document.getElementById("screen-quiz").classList.add("screen-hidden");
             const panelResultados = document.getElementById("screen-results");
             panelResultados.classList.remove("screen-hidden");
@@ -442,10 +448,12 @@
             if (puntajeAcumulado >= 300) {
                 tituloFinal.textContent = "¡MISIÓN CUMPLIDA!";
                 tituloFinal.className = "victory-title";
+                lanzarSerpentinas(); // Serpentinas visuales y sonido de confetti
                 reproducirRespuestaCorta(`¡Fabuloso! Ganaste el juego con ${puntajeAcumulado} puntos. Elige si quieres pasar al siguiente nivel.`);
             } else {
                 tituloFinal.textContent = "¡VUELVE A INTENTARLO!";
                 tituloFinal.className = "defeat-title";
+                reproducirError(); // Sonido de error al perder
                 reproducirRespuestaCorta(`Buen intento. Conseguiste ${puntajeAcumulado} puntos. ¡Puedes repetirlo para mejorar tu marcador!`);
             }
         }

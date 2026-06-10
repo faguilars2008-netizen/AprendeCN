@@ -19,8 +19,7 @@ document.addEventListener("DOMContentLoaded", () => {
 function irAJuegos() {
     reproducirVozBienvenida("¡Preparando misiones y juegos interactivos! ¡A jugar!");
     setTimeout(() => {
-        // Aquí pones la página donde tengas tus juegos programados, por ejemplo:
-        window.location.href = "juego1.html"; 
+        window.location.href = "juegos.html"; 
     }, 1200);
 }
 

@@ -8,6 +8,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Open+Sans:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="js/efectos.js"></script>
 
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -151,7 +152,7 @@
             <div style="display: flex; flex-direction: column; gap: 12px; align-items: center;">
                 <a href="juego3.html" class="btn-nav btn-blue">➡️ SIGUIENTE NIVEL (JUEGO 3)</a>
                 <button class="btn-nav btn-yellow" onclick="reiniciarJuego()">🔄 REPETIR JUEGO 2</button>
-                <a href="bienvenida.html" class="btn-nav btn-red">🏠 VOLVER AL INICIO</a>
+                <a href="juegos.html" class="btn-nav btn-red">🏠 VOLVER AL PANEL</a>
             </div>
         </div>
     </div>
@@ -232,10 +233,12 @@
                 botones[idxSeleccionado].classList.add("correct-blink");
                 puntaje += 150;
                 document.getElementById("score-node").textContent = puntaje;
+                reproducirAcierto(); // Sonido nativo de acierto
                 speakFeedback("¡Eso es! Captura exitosa.");
             } else {
                 botones[idxSeleccionado].classList.add("wrong-blink");
                 botones[datos.correcto].classList.add("correct-blink");
+                reproducirError(); // Sonido nativo de error
                 speakFeedback("¡Oh, energía incorrecta!");
             }
 
@@ -258,9 +261,14 @@
         }
 
         function finalizarJuego() {
+            // Guardar puntaje en localStorage
+            localStorage.setItem("puntaje_juego2", puntaje);
+
             document.getElementById("screen-game").classList.add("screen-hidden");
             document.getElementById("screen-results").classList.remove("screen-hidden");
             document.getElementById("results-score-text").textContent = `CONSEGUISTE ${puntaje} PUNTOS`;
+            
+            lanzarSerpentinas(); // Serpentinas visuales y sonido de confetti
             speakFeedback(`¡Espectacular! Terminaste el nivel 2 con ${puntaje} puntos.`);
         }
 
