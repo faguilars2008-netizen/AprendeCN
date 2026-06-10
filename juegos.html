@@ -282,8 +282,47 @@
             text-decoration: none;
             display: inline-block;
             text-align: center;
-        }
 
+        }
+        /* ====================================================
+ESTILO DEL BOTÓN ESTILO DC COMICS (RETRO/POP ART)
+   ==================================================== */
+.container-btn-dc {
+    text-align: center;
+    margin: 20px 0;
+}
+
+.btn-dc-comics {
+    font-family: 'Bangers', cursive;
+    font-size: 1.8rem;
+    font-style: italic;
+    background: #1d4ed8 !important; /* Azul héroe clásico */
+    color: #ffffff !important;
+    border: 5px solid #000000 !important;
+    padding: 12px 40px;
+    border-radius: 0px; /* Sin bordes redondeados para un look más de cómic impreso */
+    text-decoration: none;
+    display: inline-block;
+    box-shadow: 8px 8px 0px #fde047; /* Sombra amarilla brillante descentrada */
+    text-shadow: 3px 3px 0px #000000; /* Borde de texto negro */
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    transition: all 0.15s ease-in-out;
+    position: relative;
+}
+
+/* Efecto al pasar el mouse por encima (Hover) */
+.btn-dc-comics:hover {
+    background: #e11d48 !important; /* Cambia a rojo de acción rápida */
+    box-shadow: 4px 4px 0px #fde047; /* La sombra se achica dando efecto de presión */
+    transform: translate(4px, 4px);
+}
+
+/* Efecto al hacer clic (Active) */
+.btn-dc-comics:active {
+    box-shadow: 0px 0px 0px #fde047;
+    transform: translate(8px, 8px);
+}
         .btn-red { background: #e11d48; color: #ffffff; text-shadow: 2px 2px 0px #000000; }
         .btn-blue { background: #2563eb; color: #ffffff; text-shadow: 2px 2px 0px #000000; }
     </style>
@@ -386,7 +425,9 @@
             <a href="bienvenida.html" class="btn-footer btn-red">⬅ BIENVENIDA</a>
             <a href="basico4.html" class="btn-footer btn-blue">📜 VER CONTENIDOS (4° BÁSICO)</a>
         </footer>
-
+        <div class="container-btn-dc">
+    <a href="todos.html" class="btn-dc-comics">⚡ VER TODOS LOS JUEGOS ⚡</a>
+</div>
     </div>
 
     <script>
