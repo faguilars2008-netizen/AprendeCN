@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juego 5: El Guardián Supremo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Open+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background: radial-gradient(circle, #2563eb 0%, #1d4ed8 100%) !important;
+            font-family: 'Open Sans', sans-serif;
+            min-height: 100vh;
+            display: flex; justify-content: center; align-items: center;
+            padding: 20px; overflow: hidden;
+        }
+
+        .game-box {
+            background: #ffffff !important;
+            border: 5px solid #000000 !important;
+            border-radius: 30px !important;
+            box-shadow: 12px 12px 0px #000000 !important;
+            max-width: 550px; width: 100%;
+            padding: 30px; text-align: center; position: relative;
+        }
+
+        .game-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 20px; background: #ffffff; border: 3px solid #000000;
+            padding: 8px 15px; border-radius: 15px; box-shadow: 4px 4px 0px #000000;
+        }
+
+        .hud-text { font-family: 'Bangers', cursive; font-size: 1.5rem; color: #1d4ed8; }
+        .score-badge { color: #e11d48; }
+
+        .character-zone { display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 15px; }
+        .avatar-frame { width: 90px; height: 90px; border: 4px solid #000000; border-radius: 50%; box-shadow: 4px 4px 0px #000000; object-fit: cover; }
+        
+        .btn-repeat-voice {
+            background: #fde047 !important; border: 3px solid #000000;
+            width: 45px; height: 45px; border-radius: 50%; cursor: pointer;
+            box-shadow: 2px 2px 0px #000000; display: flex; align-items: center; justify-content: center;
+        }
+
+        .comic-bubble {
+            background: #ffffff; border: 4px solid #000000; border-radius: 18px;
+            padding: 18px; font-size: 1.2rem; font-weight: bold; color: #1e293b;
+            box-shadow: 5px 5px 0px #1d4ed8; margin-bottom: 25px; text-align: left;
+        }
+
+        .word-span { display: inline-block; padding: 0 1px; }
+        .word-highlight { background-color: #fde047 !important; color: #000000 !important; border-radius: 4px; }
+
+        /* Botones de Ecosistemas */
+        .ecosystem-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .btn-eco {
+            font-family: 'Bangers', cursive; font-size: 1.3rem; padding: 15px;
+            border: 3px solid #000000; border-radius: 15px; cursor: pointer;
+            box-shadow: 4px 4px 0px #000000; transition: transform 0.1s;
+        }
+        .btn-eco:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0px #000000; }
+        
+        /* Colores de botones */
+        .eco-norte { background: #fbbf24; color: #000000; } /* Desierto */
+        .eco-centro { background: #f87171; color: #ffffff; text-shadow: 1px 1px 0px #000000; } /* Cordillera */
+        .eco-sur { background: #4ade80; color: #000000; } /* Bosque */
+        .eco-mar { background: #38bdf8; color: #ffffff; text-shadow: 1px 1px 0px #000000; } /* Océano */
+
+        /* PANTALLA FINAL DE CELEBRACIÓN */
+        .screen-hidden { display: none !important; }
+        .victory-title { font-family: 'Bangers', cursive; font-size: 3.5rem; color: #16a34a; text-shadow: 3px 3px 0px #000000; margin-bottom: 10px; font-style: italic; }
+        
+        .stars-container { font-size: 3.5rem; color: #fde047; text-shadow: 3px 3px 0px #000000; margin: 15px 0; }
+        .final-badge { font-family: 'Bangers', cursive; font-size: 2rem; background: #fde047; padding: 10px 25px; border: 4px solid #000000; display: inline-block; box-shadow: 5px 5px 0px #000000; margin-bottom: 20px; }
+        
+        .total-points-text { font-weight: bold; font-size: 1.2rem; color: #1e293b; margin-bottom: 25px; }
+
+        .btn-nav {
+            font-family: 'Bangers', cursive; font-size: 1.6rem; padding: 12px 25px;
+            border: 4px solid #000000; border-radius: 15px; cursor: pointer;
+            text-decoration: none; display: inline-block; box-shadow: 5px 5px 0px #000000;
+            width: 90%; text-align: center;
+        }
+        .btn-pink { background: #e11d48; color: #ffffff; text-shadow: 2px 2px 0px #000000; }
+    </style>
+</head>
+<body>
+
+    <div class="game-box">
+        <div id="screen-game">
+            <header class="game-header">
+                <div class="hud-text">MISIÓN: <span id="current-q">1/4</span></div>
+                <div class="hud-text">PUNTOS J5: <span id="score-j5" class="score-badge">0</span></div>
+            </header>
+
+            <div class="character-zone">
+                <img id="player-hero-avatar" src="img/avatar1.jpeg" alt="Héroe" class="avatar-frame">
+                <button class="btn-repeat-voice" onclick="volverAEscuchar()"><i class="fa-solid fa-volume-high"></i></button>
+            </div>
+
+            <div class="comic-bubble" id="instruction-bubble"></div>
+
+            <div class="ecosystem-grid">
+                <button class="btn-eco eco-norte" onclick="validar(0)">DESIERTO NORTE</button>
+                <button class="btn-eco eco-centro" onclick="validar(1)">CORDILLERA</button>
+                <button class="btn-eco eco-sur" onclick="validar(2)">BOSQUE SUR</button>
+                <button class="btn-eco eco-mar" onclick="validar(3)">MAR CHILENO</button>
+            </div>
+        </div>
+
+        <div id="screen-victory" class="screen-hidden">
+            <h1 class="victory-title">¡ERES UN MAESTRO!</h1>
+            
+            <div class="stars-container">
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+            </div>
+
+            <div class="final-badge" id="total-score-badge">0 PUNTOS TOTALES</div>
+            
+            <p class="total-points-text" id="congrats-text">¡Increíble! Has salvado todos los ecosistemas de Chile.</p>
+            
+            <a href="bienvenida.html" class="btn-nav btn-pink">🏠 VOLVER AL INICIO</a>
+        </div>
+    </div>
+
+    <script>
+        const misiones = [
+            { texto: "¡Emergencia! Veo cactus, mucha arena y hace un calor extremo. ¿Dónde estoy?", correcta: 0 },
+            { texto: "¡Rápido! Hay mucha nieve, cóndores volando alto y montañas gigantes. ¿Qué lugar es?", correcta: 1 },
+            { texto: "¡Cuidado! Todo está lleno de árboles verdes, llueve mucho y hay lagos fríos. ¿Dónde me encuentro?", correcta: 2 },
+            { texto: "¡Al agua! Veo ballenas, algas y pingüinos nadando en el océano pacífico. ¿Qué ecosistema es?", correcta: 3 }
+        ];
+
+        let indice = 0;
+        let puntosJ5 = 0;
+        let bloqueado = false;
+        let spansPalabras = [];
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const avatar = localStorage.getItem("avatarEstudiante") || "avatar1";
+            document.getElementById("player-hero-avatar").src = `img/${avatar}.jpeg`;
+            cargarMision();
+        });
+
+        function cargarMision() {
+            bloqueado = false;
+            document.getElementById("current-q").textContent = `${indice + 1}/4`;
+            document.getElementById("score-j5").textContent = puntosJ5;
+
+            const datos = misiones[indice];
+            const caja = document.getElementById("instruction-bubble");
+            caja.innerHTML = datos.texto.split(' ').map(w => `<span class="word-span">${w}</span>`).join(' ');
+            spansPalabras = caja.querySelectorAll('.word-span');
+
+            reproducirVoz(datos.texto);
+        }
+
+        function reproducirVoz(texto) {
+            if (!('speechSynthesis' in window)) return;
+            window.speechSynthesis.cancel();
+            const ut = new SpeechSynthesisUtterance(texto);
+            ut.lang = 'es-CL';
+            ut.rate = 0.9;
+            let idxW = 0;
+
+            ut.onboundary = (e) => {
+                if (e.name === 'word') {
+                    spansPalabras.forEach(s => s.classList.remove('word-highlight'));
+                    if (idxW < spansPalabras.length) {
+                        spansPalabras[idxW].classList.add('word-highlight');
+                        idxW++;
+                    }
+                }
+            };
+            ut.onend = () => spansPalabras.forEach(s => s.classList.remove('word-highlight'));
+            window.speechSynthesis.speak(ut);
+        }
+
+        function volverAEscuchar() { reproducirVoz(misiones[indice].texto); }
+
+        function validar(elegido) {
+            if (bloqueado) return;
+            bloqueado = true;
+            window.speechSynthesis.cancel();
+
+            if (elegido === misiones[indice].correcta) {
+                puntosJ5 += 200;
+                reproducirSimple("¡Correcto! Eres un genio.");
+            } else {
+                reproducirSimple("¡Casi! Sigue intentando.");
+            }
+
+            setTimeout(() => {
+                if (indice < 3) {
+                    indice++;
+                    cargarMision();
+                } else {
+                    finalizarTodo();
+                }
+            }, 1500);
+        }
+
+        function reproducirSimple(m) {
+            const u = new SpeechSynthesisUtterance(m);
+            u.lang = 'es-CL';
+            window.speechSynthesis.speak(u);
+        }
+
+        function finalizarTodo() {
+            // Guardamos el puntaje de este juego
+            localStorage.setItem("puntaje_juego5", puntosJ5);
+
+            // SUMA DE TODOS LOS JUEGOS (Se asume que los otros juegos guardaron sus puntos)
+            const p1 = parseInt(localStorage.getItem("puntaje_juego1")) || 0;
+            const p2 = parseInt(localStorage.getItem("puntaje_juego2")) || 0;
+            const p3 = parseInt(localStorage.getItem("puntaje_juego3")) || 0;
+            const p4 = parseInt(localStorage.getItem("puntaje_juego4")) || 0;
+            const total = p1 + p2 + p3 + p4 + puntosJ5;
+
+            document.getElementById("screen-game").classList.add("screen-hidden");
+            document.getElementById("screen-victory").classList.remove("screen-hidden");
+            document.getElementById("total-score-badge").textContent = `${total} PUNTOS TOTALES`;
+
+            // EFECTO DE SERPENTINAS (CONFETTI)
+            var duration = 5 * 1000;
+            var animationEnd = Date.now() + duration;
+            var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+
+            function randomInRange(min, max) { return Math.random() * (max - min) + min; }
+
+            var interval = setInterval(function() {
+                var timeLeft = animationEnd - Date.now();
+                if (timeLeft <= 0) return clearInterval(interval);
+                var particleCount = 50 * (timeLeft / duration);
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } }));
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
+            }, 250);
+
+            reproducirSimple(`¡Felicitaciones! Has completado todos los niveles. Tu puntaje total es de ${total} puntos. ¡Eres un verdadero guardián de la naturaleza!`);
+        }
+    </script>
+</body>
+</html>
