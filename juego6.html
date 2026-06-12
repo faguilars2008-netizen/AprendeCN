@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juego 6: Redes Tróficas de Chile</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Open+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="js/efectos.js"></script>
+
+    <style>
+        /* RESET Y CONFIGURACIÓN GENERAL */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: radial-gradient(circle, #2563eb 0%, #1d4ed8 100%) !important;
+            background-color: #1d4ed8 !important;
+            font-family: 'Open Sans', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        /* CAJA CENTRAL DEL JUEGO */
+        .game-box {
+            background: #ffffff !important;
+            border: 4px solid #000000 !important;
+            border-radius: 28px !important;
+            box-shadow: 10px 10px 0px #000000 !important;
+            max-width: 720px;
+            width: 100%;
+            padding: 25px;
+            text-align: center;
+            position: relative;
+        }
+
+        /* HUD Superior */
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            background: #ffffff;
+            border: 3px solid #000000;
+            padding: 6px 15px;
+            border-radius: 14px;
+            box-shadow: 3px 3px 0px #000000;
+        }
+
+        .hud-text {
+            font-family: 'Bangers', cursive;
+            font-size: 1.4rem;
+            letter-spacing: 1px;
+            color: #1d4ed8;
+        }
+
+        .score-badge { color: #e11d48; }
+
+        /* Avatar y Voz */
+        .character-zone {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .avatar-frame {
+            width: 75px;
+            height: 75px;
+            border: 3px solid #000000;
+            border-radius: 50%;
+            box-shadow: 3px 3px 0px #000000;
+            object-fit: cover;
+            background: #e2e8f0;
+        }
+
+        .btn-repeat-voice {
+            background: #fde047 !important;
+            color: #000000 !important;
+            border: 3px solid #000000;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 2px 2px 0px #000000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            transition: transform 0.1s;
+        }
+        .btn-repeat-voice:active {
+            transform: scale(0.9);
+        }
+
+        /* Globo de instrucciones */
+        .comic-bubble {
+            background: #ffffff;
+            border: 3px solid #000000;
+            border-radius: 16px;
+            padding: 15px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #1e293b;
+            box-shadow: 4px 4px 0px #1d4ed8;
+            margin-bottom: 20px;
+            text-align: left;
+            line-height: 1.4;
+        }
+
+        .word-span { display: inline-block; padding: 0 1px; }
+        .word-highlight { background-color: #fde047 !important; color: #000000 !important; border-radius: 4px; }
+
+        /* CONTENEDOR DE ESPACIOS DE LA CADENA */
+        .slots-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 5px;
+            margin-bottom: 25px;
+        }
+
+        @media (max-width: 600px) {
+            .slots-container {
+                flex-direction: column;
+                gap: 15px;
+            }
+            .chain-arrow {
+                transform: rotate(90deg);
+            }
+        }
+
+        .slot-box {
+            background: #f8fafc;
+            border: 3px dashed #94a3b8;
+            border-radius: 16px;
+            width: 22%;
+            min-height: 140px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            position: relative;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        @media (max-width: 600px) {
+            .slot-box {
+                width: 95%;
+                min-height: 120px;
+            }
+        }
+
+        .slot-box.drag-over {
+            border-color: #1d4ed8;
+            background-color: #eff6ff;
+            transform: scale(1.02);
+        }
+
+        .slot-box.filled {
+            border: 3px solid #000000;
+            background-color: #ffffff;
+        }
+
+        .slot-label {
+            font-family: 'Bangers', cursive;
+            font-size: 0.95rem;
+            width: 100%;
+            padding: 4px 2px;
+            border-bottom: 3px solid #000000;
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
+            color: #ffffff;
+            text-shadow: 1px 1px 0px #000000;
+            text-align: center;
+            box-sizing: border-box;
+            letter-spacing: 0.5px;
+        }
+
+        .bg-prod { background-color: #16a34a !important; }
+        .bg-herb { background-color: #d97706 !important; }
+        .bg-carn { background-color: #dc2626 !important; }
+        .bg-depr { background-color: #7c3aed !important; }
+
+        .slot-body {
+            width: 100%;
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 5px;
+        }
+
+        .chain-arrow {
+            font-family: 'Bangers', cursive;
+            font-size: 1.8rem;
+            color: #000000;
+            text-shadow: 1px 1px 0px #fde047;
+            user-select: none;
+        }
+
+        /* BANCO DE TARJETAS A SELECCIONAR */
+        .cards-pool {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            background: #f1f5f9;
+            padding: 15px;
+            border: 3px solid #000000;
+            border-radius: 18px;
+            min-height: 120px;
+            box-shadow: inset 2px 2px 5px rgba(0,0,0,0.1);
+            margin-top: 15px;
+        }
+
+        /* Tarjeta */
+        .organism-card {
+            background: #ffffff;
+            border: 3px solid #000000;
+            border-radius: 12px;
+            padding: 8px;
+            box-shadow: 3px 3px 0px #000000;
+            font-weight: bold;
+            font-size: 0.85rem;
+            cursor: grab;
+            user-select: none;
+            transition: all 0.15s ease;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            width: 115px;
+            min-height: 90px;
+        }
+
+        .organism-card:active {
+            cursor: grabbing;
+        }
+
+        .organism-card.dragging {
+            opacity: 0.3;
+        }
+
+        .organism-card.selected-card {
+            border-color: #2563eb;
+            box-shadow: 0px 0px 8px #2563eb;
+            transform: scale(1.05);
+            background-color: #eff6ff;
+        }
+
+        /* Cuando está metida en el slot */
+        .slot-box .organism-card {
+            width: 95%;
+            box-shadow: none;
+            cursor: default;
+            border: 2px solid #000000;
+            padding: 5px;
+            min-height: auto;
+        }
+
+        /* PANTALLA DE VICTORIA */
+        .screen-hidden { display: none !important; }
+        
+        .victory-title {
+            font-family: 'Bangers', cursive;
+            font-size: 3.2rem;
+            color: #16a34a;
+            text-shadow: 3px 3px 0px #000000;
+            margin-bottom: 15px;
+            font-style: italic;
+            letter-spacing: 1px;
+        }
+
+        .stars-container {
+            font-size: 3.5rem;
+            color: #fde047;
+            text-shadow: 3px 3px 0px #000000;
+            margin: 15px 0;
+        }
+
+        .final-badge {
+            font-family: 'Bangers', cursive;
+            font-size: 1.8rem;
+            background: #fde047;
+            padding: 8px 25px;
+            border: 3px solid #000000;
+            display: inline-block;
+            box-shadow: 4px 4px 0px #000000;
+            margin-bottom: 25px;
+        }
+
+        .btn-nav {
+            font-family: 'Bangers', cursive;
+            font-size: 1.5rem;
+            padding: 12px 25px;
+            border: 3px solid #000000;
+            border-radius: 14px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            box-shadow: 4px 4px 0px #000000;
+            width: 90%;
+            max-width: 380px;
+            letter-spacing: 0.5px;
+            transition: transform 0.1s, box-shadow 0.1s;
+            text-align: center;
+        }
+
+        .btn-nav:active {
+            transform: translate(2px, 2px);
+            box-shadow: 2px 2px 0px #000000;
+        }
+
+        .btn-yellow { background: #fde047; color: #000000; }
+        .btn-pink { background: #e11d48; color: #ffffff; text-shadow: 2px 2px 0px #000000; }
+        .btn-blue { background: #2563eb; color: #ffffff; text-shadow: 2px 2px 0px #000000; }
+
+        /* ANIMACIONES CÓMIC Y SPLASH */
+        @keyframes splash-pop {
+            0% { transform: scale(0) rotate(-15deg); opacity: 0; }
+            50% { transform: scale(1.3) rotate(10deg); opacity: 1; }
+            100% { transform: scale(1) rotate(-5deg); opacity: 0.9; }
+        }
+        .comic-splash {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: 'Bangers', cursive;
+            font-size: 2.2rem;
+            color: #ffffff;
+            border: 4px solid #000000;
+            padding: 8px 15px;
+            border-radius: 10px;
+            box-shadow: 4px 4px 0px #000000;
+            text-shadow: 2px 2px 0px #000000;
+            z-index: 1000;
+            pointer-events: none;
+            animation: splash-pop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        @keyframes ouch-vibe {
+            0%, 100% { transform: scale(1) translate(-50%, -50%) rotate(0deg); }
+            20%, 60% { transform: scale(1.1) translate(-52%, -48%) rotate(-5deg); }
+            40%, 80% { transform: scale(1.1) translate(-48%, -52%) rotate(5deg); }
+        }
+        .ouch-splash {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: 'Bangers', cursive;
+            font-size: 2rem;
+            color: #ffffff;
+            background: #4b5563; /* Gris */
+            border: 4px solid #000000;
+            padding: 6px 12px;
+            border-radius: 8px;
+            box-shadow: 3px 3px 0px #000000;
+            text-shadow: 2px 2px 0px #000000;
+            z-index: 1000;
+            pointer-events: none;
+            animation: ouch-vibe 0.5s ease-in-out forwards;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="game-box">
+        <div id="screen-game">
+            <header class="game-header">
+                <div class="hud-text">RONDA: <span id="current-round">1/3</span></div>
+                <div class="hud-text">ECOSISTEMA: <span id="ecosystem-name" style="color:#e11d48;">-</span></div>
+                <div class="hud-text">PUNTOS J6: <span id="score-node" class="score-badge">0</span></div>
+            </header>
+
+            <div class="character-zone">
+                <img id="player-hero-avatar" src="img/avatar1.jpeg" alt="Héroe" class="avatar-frame">
+                <button class="btn-repeat-voice" onclick="volverAEscuchar()" title="Volver a escuchar"><i class="fa-solid fa-volume-high"></i></button>
+            </div>
+
+            <div class="comic-bubble" id="instruction-bubble"></div>
+
+            <!-- Contenedor de la cadena -->
+            <div class="slots-container">
+                <div class="slot-box" data-role="productor" ondragover="allowDrop(event)" ondragleave="dragLeave(event)" ondrop="handleDrop(event)" onclick="handleSlotClick('productor')">
+                    <div class="slot-label bg-prod">1. PRODUCTOR</div>
+                    <div class="slot-body" id="slot-productor"></div>
+                </div>
+
+                <div class="chain-arrow">➔</div>
+
+                <div class="slot-box" data-role="herbivoro" ondragover="allowDrop(event)" ondragleave="dragLeave(event)" ondrop="handleDrop(event)" onclick="handleSlotClick('herbivoro')">
+                    <div class="slot-label bg-herb">2. HERBÍVORO</div>
+                    <div class="slot-body" id="slot-herbivoro"></div>
+                </div>
+
+                <div class="chain-arrow">➔</div>
+
+                <div class="slot-box" data-role="carnivoro" ondragover="allowDrop(event)" ondragleave="dragLeave(event)" ondrop="handleDrop(event)" onclick="handleSlotClick('carnivoro')">
+                    <div class="slot-label bg-carn">3. CARNÍVORO</div>
+                    <div class="slot-body" id="slot-carnivoro"></div>
+                </div>
+
+                <div class="chain-arrow">➔</div>
+
+                <div class="slot-box" data-role="depredador" ondragover="allowDrop(event)" ondragleave="dragLeave(event)" ondrop="handleDrop(event)" onclick="handleSlotClick('depredador')">
+                    <div class="slot-label bg-depr">4. DEPREDADOR</div>
+                    <div class="slot-body" id="slot-depredador"></div>
+                </div>
+            </div>
+
+            <p style="font-size: 0.85rem; font-weight: bold; margin-bottom: 8px; color: #475569;">
+                ¡Haz clic en un organismo y luego en su caja, o arrástralo directamente!
+            </p>
+            
+            <!-- Banco de tarjetas -->
+            <div class="cards-pool" id="cards-pool"></div>
+        </div>
+
+        <!-- Pantalla de Victoria -->
+        <div id="screen-victory" class="screen-hidden">
+            <h1 class="victory-title">¡MAESTRO TRÓFICO!</h1>
+            
+            <div class="stars-container">
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+            </div>
+
+            <div class="final-badge" id="results-score-text">CONSEGUISTE 0 PUNTOS</div>
+            
+            <p style="font-weight: bold; font-size: 1.1rem; margin-bottom: 20px; color: #475569;">
+                ¡Espectacular! Has ordenado perfectamente los flujos de energía chilenos.
+            </p>
+            
+            <div style="display: flex; flex-direction: column; gap: 12px; align-items: center;">
+                <button class="btn-nav btn-yellow" onclick="reiniciarJuego()">🔄 REPETIR ESTE DESAFÍO</button>
+                <a href="juegos.html" class="btn-nav btn-pink">🎮 VER PANEL DE JUEGOS</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Datos de las 3 Rondas con ecosistemas de Chile
+        const rondas = [
+            {
+                ecosistema: "BOSQUE VALDIVIANO",
+                introVoz: "¡Ronda uno! Reconstruyamos la cadena alimentaria del Bosque Valdiviano. Para empezar, ¿quién capta la luz del sol para fabricar energía? ¿Qué tierno herbívoro come esas plantas? ¿Qué astuto carnívoro mediano acecha al herbívoro? ¿Y quién es el gran felino y cazador supremo en la cima? ¡Ordénalos!",
+                organismos: [
+                    { id: "helecho", nombre: "🌿 Helecho Pelú", rol: "productor" },
+                    { id: "pudu", nombre: "🦌 Pudú", rol: "herbivoro" },
+                    { id: "zorro", nombre: "🦊 Zorro Chilla", rol: "carnivoro" },
+                    { id: "puma", nombre: "🐆 Puma Chileno", rol: "depredador" }
+                ]
+            },
+            {
+                ecosistema: "MAR CHILENO",
+                introVoz: "¡Excelente! En la ronda dos viajamos a las frías aguas marinas de Chile. ¿Cuál es el alga gigante que produce energía? ¿Qué diminuto animal del plancton come esa alga? ¿Qué veloz ave marina nada tras el krill? ¿Y quién es el mamífero gigante y cazador tope del océano? ¡Resuelve la cadena!",
+                organismos: [
+                    { id: "cochayuyo", nombre: "🌿 Cochayuyo", rol: "productor" },
+                    { id: "krill", nombre: "🦐 Krill Chileno", rol: "herbivoro" },
+                    { id: "pinguino", nombre: "🐧 Pingüino", rol: "carnivoro" },
+                    { id: "orca", nombre: "🐋 Orca", rol: "depredador" }
+                ]
+            },
+            {
+                ecosistema: "ALTIPLANO CHILENO",
+                introVoz: "¡Último desafío! Subamos al frío Altiplano de la cordillera. ¿Qué pasto produce energía en el suelo helado? ¿Qué mamífero camélido se alimenta de ese pasto? ¿Qué carnívoro astuto corre veloz para cazarlo? ¿Y quién es el rey de las alturas que planea en la cima? ¡Completa el desafío!",
+                organismos: [
+                    { id: "pasto", nombre: "🌾 Pasto Puna", rol: "productor" },
+                    { id: "vicuna", nombre: "🦙 Vicuña", rol: "herbivoro" },
+                    { id: "culpeo", nombre: "🦊 Zorro Culpeo", rol: "carnivoro" },
+                    { id: "condor", nombre: "🦅 Cóndor Andino", rol: "depredador" }
+                ]
+            }
+        ];
+
+        let rondaActual = 0; // 0-indexed (Ronda 1 es index 0)
+        let puntaje = 0;
+        let correctosEnRonda = 0;
+        let spansPalabras = [];
+        let idElementoArrastrandose = null;
+        let tarjetaSeleccionada = null; // Para control click-to-place
+        let vozFemenina = null;
+
+        document.addEventListener("DOMContentLoaded", () => {
+            // Cargar avatar del estudiante
+            const avatar = localStorage.getItem("avatarEstudiante") || "avatar1";
+            document.getElementById("player-hero-avatar").src = `img/${avatar}.jpeg`;
+            
+            // Cargar voces inicialmente
+            cargarVoces();
+            cargarRonda();
+        });
+
+        // Configuración de la voz femenina
+        function cargarVoces() {
+            if (!('speechSynthesis' in window)) return;
+            const voices = window.speechSynthesis.getVoices();
+            const esVoices = voices.filter(v => v.lang.startsWith('es'));
+            if (esVoices.length === 0) return;
+
+            // Filtro por nombres femeninos conocidos en sistemas operativos habituales
+            const nombresFemeninos = ['sabina', 'helena', 'maria', 'margarita', 'monica', 'paulina', 'marisol', 'angelica', 'laura', 'sandra', 'female', 'mujer', 'femenina'];
+            
+            for (const nombre of nombresFemeninos) {
+                const found = esVoices.find(v => v.name.toLowerCase().includes(nombre));
+                if (found) {
+                    vozFemenina = found;
+                    break;
+                }
+            }
+
+            // Si no detecta, prefiere Google o la primera voz española libre
+            if (!vozFemenina) {
+                vozFemenina = esVoices.find(v => v.name.toLowerCase().includes('google')) || esVoices[0];
+            }
+        }
+
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.onvoiceschanged = cargarVoces;
+        }
+
+        // Carga la información de la ronda actual
+        function cargarRonda() {
+            correctosEnRonda = 0;
+            tarjetaSeleccionada = null;
+            document.getElementById("current-round").textContent = `${rondaActual + 1}/3`;
+            document.getElementById("score-node").textContent = puntaje;
+
+            const datosRonda = rondas[rondaActual];
+            document.getElementById("ecosystem-name").textContent = datosRonda.ecosistema;
+
+            // Resetear contenedores visuales de los slots
+            document.querySelectorAll(".slot-box").forEach(slot => {
+                slot.classList.remove("filled");
+                const body = slot.querySelector(".slot-body");
+                body.innerHTML = "";
+            });
+
+            // Preparar el globo de texto
+            const cajaIns = document.getElementById("instruction-bubble");
+            cajaIns.innerHTML = datosRonda.introVoz.split(' ').map(w => `<span class="word-span">${w}</span>`).join(' ');
+            spansPalabras = cajaIns.querySelectorAll('.word-span');
+
+            // Barajar los organismos
+            const listaMezclada = [...datosRonda.organismos].sort(() => Math.random() - 0.5);
+
+            // Cargar los organismos en el pool
+            const pool = document.getElementById("cards-pool");
+            pool.innerHTML = listaMezclada.map(org => `
+                <div class="organism-card" id="${org.id}" data-role="${org.rol}" draggable="true" ondragstart="handleDragStart(event)" ondragend="handleDragEnd(event)" onclick="handleCardClick(event, '${org.id}')">
+                    ${org.nombre}
+                </div>
+            `).join('');
+
+            // Reproducir narración
+            reproducirConSubrayado(datosRonda.introVoz);
+        }
+
+        // Narración con subrayado sincronizado
+        function reproducirConSubrayado(texto) {
+            if (!('speechSynthesis' in window)) return;
+            window.speechSynthesis.cancel();
+
+            const ut = new SpeechSynthesisUtterance(texto);
+            if (vozFemenina) {
+                ut.voice = vozFemenina;
+            }
+            ut.lang = 'es-CL';
+            ut.rate = 0.85;
+            let idxW = 0;
+
+            ut.onboundary = (e) => {
+                if (e.name === 'word') {
+                    spansPalabras.forEach(s => s.classList.remove('word-highlight'));
+                    if (idxW < spansPalabras.length) {
+                        spansPalabras[idxW].classList.add('word-highlight');
+                        idxW++;
+                    }
+                }
+            };
+
+            ut.onend = () => {
+                spansPalabras.forEach(s => s.classList.remove('word-highlight'));
+            };
+
+            window.speechSynthesis.speak(ut);
+        }
+
+        function volverAEscuchar() {
+            reproducirConSubrayado(rondas[rondaActual].introVoz);
+        }
+
+        // Lógica de arrastre
+        function handleDragStart(e) {
+            idElementoArrastrandose = e.target.id;
+            e.target.classList.add("dragging");
+            e.dataTransfer.setData("text/plain", e.target.id);
+        }
+
+        function handleDragEnd(e) {
+            e.target.classList.remove("dragging");
+            idElementoArrastrandose = null;
+        }
+
+        function allowDrop(e) {
+            e.preventDefault();
+            e.currentTarget.classList.add("drag-over");
+        }
+
+        function dragLeave(e) {
+            e.currentTarget.classList.remove("drag-over");
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            const slot = e.currentTarget;
+            slot.classList.remove("drag-over");
+
+            const idCard = idElementoArrastrandose || e.dataTransfer.getData("text");
+            const cardEl = document.getElementById(idCard);
+            if (!cardEl) return;
+
+            intentarColocarTarjeta(cardEl, slot);
+        }
+
+        // Lógica de clic
+        function handleCardClick(e, idCard) {
+            e.stopPropagation();
+            const cardEl = document.getElementById(idCard);
+            if (cardEl.getAttribute("draggable") === "false") return; // Ya colocada
+
+            // Si ya estaba seleccionada, la deselecciona
+            if (tarjetaSeleccionada === cardEl) {
+                cardEl.classList.remove("selected-card");
+                tarjetaSeleccionada = null;
+            } else {
+                // Quitar selección a las demás
+                document.querySelectorAll(".organism-card").forEach(c => c.classList.remove("selected-card"));
+                tarjetaSeleccionada = cardEl;
+                cardEl.classList.add("selected-card");
+            }
+        }
+
+        function handleSlotClick(rolEsperado) {
+            if (!tarjetaSeleccionada) return;
+            const slot = document.querySelector(`.slot-box[data-role="${rolEsperado}"]`);
+            intentarColocarTarjeta(tarjetaSeleccionada, slot);
+        }
+
+        // Validación principal de colocación
+        function intentarColocarTarjeta(cardEl, slot) {
+            const rolTarjeta = cardEl.getAttribute("data-role");
+            const rolEsperado = slot.getAttribute("data-role");
+
+            // Validar si es el puesto correcto en la cadena
+            if (rolTarjeta === rolEsperado) {
+                // Desactivar arrastre y selección
+                cardEl.setAttribute("draggable", "false");
+                cardEl.classList.remove("selected-card");
+                
+                // Mover al slot
+                const body = slot.querySelector(".slot-body");
+                body.appendChild(cardEl);
+                slot.classList.add("filled");
+
+                // Limpiar selección
+                tarjetaSeleccionada = null;
+
+                // Actualizar puntajes
+                puntaje += 50;
+                correctosEnRonda++;
+                document.getElementById("score-node").textContent = puntaje;
+
+                // Sonido de acierto y frase de aliento
+                reproducirAcierto();
+                reproducirAudioCorto("¡Excelente colocación!");
+                
+                // Mostrar efecto comic pop visual
+                mostrarSplash(slot);
+
+                // Verificar si completó la ronda
+                if (correctosEnRonda === 4) {
+                    setTimeout(() => {
+                        if (rondaActual < rondas.length - 1) {
+                            rondaActual++;
+                            cargarRonda();
+                        } else {
+                            finalizarJuego();
+                        }
+                    }, 1500);
+                }
+            } else {
+                // Sonido de error y pista
+                reproducirError();
+                reproducirAudioCorto("¡Revisa su rol, ese no es su lugar!");
+                
+                // Mostrar efecto visual de error
+                mostrarOuch(slot);
+
+                // Reducir puntaje con límite inferior
+                puntaje = Math.max(0, puntaje - 10);
+                document.getElementById("score-node").textContent = puntaje;
+                
+                // Limpiar selección para reintentar
+                if (tarjetaSeleccionada) {
+                    tarjetaSeleccionada.classList.remove("selected-card");
+                    tarjetaSeleccionada = null;
+                }
+            }
+        }
+
+        // Funciones para efectos visuales retro
+        function mostrarSplash(slotElement) {
+            const sonidos = ["¡PUM!", "¡BOOM!", "¡ZAP!", "¡POW!", "¡SÚPER!", "¡CRACK!", "¡BIEN!"];
+            const colores = ["#e11d48", "#ea580c", "#16a34a", "#7c3aed", "#ec4899", "#d97706"];
+            
+            const sonidoAleatorio = sonidos[Math.floor(Math.random() * sonidos.length)];
+            const colorAleatorio = colores[Math.floor(Math.random() * colores.length)];
+
+            const splash = document.createElement("div");
+            splash.className = "comic-splash";
+            splash.style.backgroundColor = colorAleatorio;
+            splash.textContent = sonidoAleatorio;
+
+            slotElement.appendChild(splash);
+
+            setTimeout(() => {
+                splash.remove();
+            }, 800);
+        }
+
+        function mostrarOuch(slotElement) {
+            const textos = ["¡OUCH!", "¡NOP!", "¡CASI!", "¡PIENSA!"];
+            const textoAleatorio = textos[Math.floor(Math.random() * textos.length)];
+
+            const splash = document.createElement("div");
+            splash.className = "ouch-splash";
+            splash.textContent = textoAleatorio;
+
+            slotElement.appendChild(splash);
+
+            setTimeout(() => {
+                splash.remove();
+            }, 800);
+        }
+
+        function reproducirAudioCorto(mensaje) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const discurso = new SpeechSynthesisUtterance(mensaje);
+                if (vozFemenina) {
+                    discurso.voice = vozFemenina;
+                }
+                discurso.lang = 'es-CL';
+                window.speechSynthesis.speak(discurso);
+            }
+        }
+
+        // Finaliza el juego y guarda puntajes en localStorage
+        function finalizarJuego() {
+            localStorage.setItem("puntaje_juego6", puntaje);
+
+            // Suma total histórica de juegos (p1 a p6)
+            const p1 = parseInt(localStorage.getItem("puntaje_juego1")) || 0;
+            const p2 = parseInt(localStorage.getItem("puntaje_juego2")) || 0;
+            const p3 = parseInt(localStorage.getItem("puntaje_juego3")) || 0;
+            const p4 = parseInt(localStorage.getItem("puntaje_juego4")) || 0;
+            const p5 = parseInt(localStorage.getItem("puntaje_juego5")) || 0;
+            const total = p1 + p2 + p3 + p4 + p5 + puntaje;
+
+            localStorage.setItem("puntajeTotal", total);
+
+            document.getElementById("screen-game").classList.add("screen-hidden");
+            document.getElementById("screen-victory").classList.remove("screen-hidden");
+            document.getElementById("results-score-text").textContent = `CONSEGUISTE ${puntaje} PUNTOS`;
+
+            // Efecto Confeti Visual
+            lanzarSerpentinas();
+
+            reproducirAudioCorto(`¡Felicitaciones! Has completado el desafío de las cadenas tróficas. Conseguiste ${puntaje} puntos en este nivel y tu puntaje acumulado total es de ${total} puntos. ¡Gran trabajo científico!`);
+        }
+
+        // Reinicio completo del juego
+        function reiniciarJuego() {
+            rondaActual = 0;
+            puntaje = 0;
+            document.getElementById("screen-victory").classList.add("screen-hidden");
+            document.getElementById("screen-game").classList.remove("screen-hidden");
+            cargarRonda();
+        }
+    </script>
+</body>
+</html>

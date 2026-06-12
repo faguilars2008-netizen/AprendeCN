@@ -259,6 +259,7 @@
         .color-j3 .mission-banner { background: #16a34a; }
         .color-j4 .mission-banner { background: #8b5cf6; }
         .color-j5 .mission-banner { background: #06b6d4; }
+        .color-j6 .mission-banner { background: #be185d; }
 
         .btn-start { background: #fde047; color: #000000; }
         .btn-start:hover { background: #facc15; }
@@ -418,6 +419,19 @@ ESTILO DEL BOTÓN ESTILO DC COMICS (RETRO/POP ART)
                 </div>
             </div>
 
+            <!-- Juego 6 -->
+            <div class="mission-card color-j6">
+                <div class="mission-banner">🔗 Misión 6: Redes Tróficas</div>
+                <div class="mission-body">
+                    <p class="mission-desc">Reconstruye las cadenas alimentarias de nuestro país ordenando a los seres vivos.</p>
+                    <div class="score-info">
+                        <span>Puntaje Máximo:</span>
+                        <span class="score-val" id="score-j6">0 / 600</span>
+                    </div>
+                    <a href="juego6.html" class="btn-comic btn-start">¡INICIAR! ⚡</a>
+                </div>
+            </div>
+
         </div>
 
         <!-- Botones de navegación inferiores -->
@@ -446,14 +460,16 @@ ESTILO DEL BOTÓN ESTILO DC COMICS (RETRO/POP ART)
             const p3 = parseInt(localStorage.getItem("puntaje_juego3")) || 0;
             const p4 = parseInt(localStorage.getItem("puntaje_juego4")) || 0;
             const p5 = parseInt(localStorage.getItem("puntaje_juego5")) || 0;
+            const p6 = parseInt(localStorage.getItem("puntaje_juego6")) || 0;
 
             document.getElementById("score-j1").textContent = `${p1} / 500`;
             document.getElementById("score-j2").textContent = `${p2} / 450`;
             document.getElementById("score-j3").textContent = `${p3} / 1200`;
             document.getElementById("score-j4").textContent = `${p4} / 500`;
             document.getElementById("score-j5").textContent = `${p5} / 800`;
+            document.getElementById("score-j6").textContent = `${p6} / 600`;
 
-            const total = p1 + p2 + p3 + p4 + p5;
+            const total = p1 + p2 + p3 + p4 + p5 + p6;
             document.getElementById("total-score-node").textContent = `${total} pts`;
 
             // Guardar puntaje total para sincronizar
