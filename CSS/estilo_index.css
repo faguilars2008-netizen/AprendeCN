@@ -1,0 +1,176 @@
+/* --- ESTILOS GENERALES DEL CÓMIC --- */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background: radial-gradient(circle, #1e3a8a 0%, #0f172a 100%);
+    font-family: 'Open Sans', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.comic-card {
+    background: #ffffff;
+    border: 5px solid #000000;
+    border-radius: 24px;
+    box-shadow: 12px 12px 0px #000000;
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    max-width: 950px;
+    width: 100%;
+    overflow: hidden;
+}
+
+.left-section {
+    background: #fde047;
+    border-right: 5px solid #000000;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.badge-grade {
+    background: #000000;
+    color: #ffffff;
+    font-family: 'Bangers', cursive;
+    font-size: 1.4rem;
+    padding: 4px 12px;
+    align-self: flex-start;
+    transform: rotate(-3deg);
+    margin-bottom: 15px;
+}
+
+.main-title {
+    font-family: 'Bangers', cursive;
+    font-size: 4.2rem;
+    color: #e11d48;
+    line-height: 0.95;
+    text-shadow: 3px 3px 0px #000000;
+    margin-bottom: 15px;
+}
+
+.subtitle {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #1e293b;
+    margin-bottom: 25px;
+}
+
+.right-section {
+    background: #f8fafc;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.section-title {
+    font-family: 'Bangers', cursive;
+    font-size: 2.5rem;
+    color: #1e3a8a;
+    margin-bottom: 25px;
+}
+
+.input-container {
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.input-container input {
+    width: 100%;
+    padding: 12px 20px;
+    font-size: 1.1rem;
+    border: 4px solid #000000;
+    border-radius: 12px;
+    outline: none;
+    font-weight: bold;
+}
+
+.avatar-label {
+    font-weight: 800;
+    font-size: 0.9rem;
+    color: #475569;
+    margin-bottom: 15px;
+}
+
+/* --- CONTROL ESTRICTO Y REDUCIDO DE IMÁGENES --- */
+.avatar-group {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 30px;
+    width: 100%;
+    max-width: 320px; /* Limita el ancho del contenedor para agrupar las fotos */
+}
+
+.avatar-img {
+    /* Forzado estricto a un tamaño mucho más pequeño */
+    width: 55px !important;    
+    height: 55px !important;   
+    max-width: 55px !important;
+    max-height: 55px !important;
+    object-fit: cover; 
+    
+    border: 4px solid #000000;
+    border-radius: 50%; 
+    cursor: pointer;
+    box-shadow: 3px 3px 0px #000000;
+    
+    flex: 0 0 55px; /* Bloquea que Flexbox altere el tamaño original */
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.avatar-img:hover {
+    transform: scale(1.1) translateY(-2px);
+    box-shadow: 3px 5px 0px #000000;
+}
+
+.avatar-img.selected {
+    border-color: #22c55e !important;
+    box-shadow: 3px 3px 0px #22c55e !important;
+    transform: scale(1.12);
+}
+
+/* --- BOTONES --- */
+.btn-comic {
+    font-family: 'Bangers', cursive;
+    font-size: 1.5rem;
+    padding: 12px 25px;
+    border: 4px solid #000000;
+    border-radius: 12px;
+    cursor: pointer;
+    box-shadow: 4px 4px 0px #000000;
+    transition: transform 0.1s, box-shadow 0.1s;
+    letter-spacing: 1px;
+}
+
+.btn-comic:active {
+    transform: translate(3px, 3px);
+    box-shadow: 1px 1px 0px #000000;
+}
+
+.btn-yellow { background: #ffffff; color: #000000; margin-bottom: 10px;}
+.btn-yellow:hover { background: #f1f5f9; }
+.btn-blue { background: #2563eb; color: #ffffff; width: 100%; text-shadow: 2px 2px 0px #000000;}
+.btn-blue:hover { background: #1d4ed8; }
+
+.content-panel {
+    background: #ffffff;
+    border: 3px solid #000000;
+    border-radius: 12px;
+    padding: 15px;
+    margin-top: 15px;
+    box-shadow: 4px 4px 0px #000000;
+    text-align: left;
+}
+
+.hidden { display: none; }
